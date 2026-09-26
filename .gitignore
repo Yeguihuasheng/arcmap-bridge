@@ -1,0 +1,54 @@
+# 编译产物
+bin/
+obj/
+*.esriaddin
+*.pdb
+
+# 第三方独立仓库（arcmap-mcp 原始源码，有独立 .git 与 LICENSE）
+vendor/
+
+# 桥通信临时目录 / 文件
+done/
+in/
+out/
+bridge.log
+*.log
+heartbeat.txt
+line.txt
+boot_line.txt
+
+# 调试截图 / 临时产物
+*.png
+
+# 调试 / 一次性脚本（保留正式构建脚本 _build.py、_install_addin.py）
+_audit*.py
+_audit*.txt
+_dbg*.py
+_dump*.py
+_dump*.txt
+_fix_i18n*.py
+_probe*.py
+_test_chain.py
+_test_panel.py
+_test_regress.py
+_test_verify.py
+_verify*.py
+_py2test*.py
+_py2_exec_probe.py
+_close_arcmap.py
+_keep_arcmap.py
+_start_arcmap.py
+_wait_arcmap.py
+_bak_ui_align/
+_i18n_bak/
+_i18n_bak4/
+
+# 调试探针脚本（含本地真实路径，勿上传）
+probe_arcmap.py
+probe_cmp.py
+probe_cn_path.py
+create_ghfq_arcmap.py
+
+# Python 缓存
+__pycache__/
+*.pyc

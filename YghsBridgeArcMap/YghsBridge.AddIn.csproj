@@ -1,0 +1,92 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- yghsBridge：ArcMap 10.4-10.8 add-in，无 Visual Studio 构建。
+       net45 (CLR4.5, ArcMap 加载的目标) + x86 (ArcMap 是 32 位)。
+       ESRI 程序集从 GAC/bin 引用且 Private=False（运行时由 ArcMap 提供，不进包）。 -->
+  <PropertyGroup>
+    <TargetFramework>net45</TargetFramework>
+    <PlatformTarget>x86</PlatformTarget>
+    <LangVersion>7.3</LangVersion>
+    <RootNamespace>YghsBridge.AddIn</RootNamespace>
+    <AssemblyName>YghsBridge.AddIn</AssemblyName>
+    <!-- 程序集版本与 Config.xml 的 Version 保持一致（ping 返回的是这个） -->
+    <Version>1.0.0</Version>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <!-- Newtonsoft.Json.dll 必须落到 bin\ 以便打进 Install\ -->
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3" PrivateAssets="all" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+  </ItemGroup>
+
+  <!-- 出进程的 arcpy runner 内嵌在 DLL 里（每次调用解到 %TEMP%）：包依然自包含 -->
+  <ItemGroup>
+    <EmbeddedResource Include="Python\runner.py" />
+  </ItemGroup>
+
+  <!-- Framework: WindowsBase 提供 System.Windows.Threading.Dispatcher (WPF) -->
+  <ItemGroup>
+    <Reference Include="WindowsBase" />
+    <Reference Include="System.Windows.Forms" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="ESRI.ArcGIS.Desktop.AddIns">
+      <HintPath>D:\Work\ArcGIS\Desktop10.8\bin\ESRI.ArcGIS.Desktop.AddIns.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="ESRI.ArcGIS.System">
+      <HintPath>C:\Windows\Microsoft.NET\assembly\GAC_MSIL\ESRI.ArcGIS.System\v4.0_10.8.0.0__8fc3cc631e44ad86\ESRI.ArcGIS.System.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="ESRI.ArcGIS.Framework">
+      <HintPath>C:\Windows\Microsoft.NET\assembly\GAC_MSIL\ESRI.ArcGIS.Framework\v4.0_10.8.0.0__8fc3cc631e44ad86\ESRI.ArcGIS.Framework.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="ESRI.ArcGIS.ArcMapUI">
+      <HintPath>C:\Windows\Microsoft.NET\assembly\GAC_MSIL\ESRI.ArcGIS.ArcMapUI\v4.0_10.8.0.0__8fc3cc631e44ad86\ESRI.ArcGIS.ArcMapUI.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="ESRI.ArcGIS.Carto">
+      <HintPath>C:\Windows\Microsoft.NET\assembly\GAC_MSIL\ESRI.ArcGIS.Carto\v4.0_10.8.0.0__8fc3cc631e44ad86\ESRI.ArcGIS.Carto.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="ESRI.ArcGIS.Geometry">
+      <HintPath>C:\Windows\Microsoft.NET\assembly\GAC_MSIL\ESRI.ArcGIS.Geometry\v4.0_10.8.0.0__8fc3cc631e44ad86\ESRI.ArcGIS.Geometry.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="ESRI.ArcGIS.Display">
+      <HintPath>C:\Windows\Microsoft.NET\assembly\GAC_MSIL\ESRI.ArcGIS.Display\v4.0_10.8.0.0__8fc3cc631e44ad86\ESRI.ArcGIS.Display.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="ESRI.ArcGIS.Geodatabase">
+      <HintPath>C:\Windows\Microsoft.NET\assembly\GAC_MSIL\ESRI.ArcGIS.Geodatabase\v4.0_10.8.0.0__8fc3cc631e44ad86\ESRI.ArcGIS.Geodatabase.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="ESRI.ArcGIS.Output">
+      <HintPath>C:\Windows\Microsoft.NET\assembly\GAC_MSIL\ESRI.ArcGIS.Output\v4.0_10.8.0.0__8fc3cc631e44ad86\ESRI.ArcGIS.Output.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <!-- run_geoprocessing 原生: IGeoProcessor2 -->
+    <Reference Include="ESRI.ArcGIS.Geoprocessing">
+      <HintPath>C:\Windows\Microsoft.NET\assembly\GAC_MSIL\ESRI.ArcGIS.Geoprocessing\v4.0_10.8.0.0__8fc3cc631e44ad86\ESRI.ArcGIS.Geoprocessing.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <!-- 图层+数据: shp/gdb/栅格 workspace factory -->
+    <Reference Include="ESRI.ArcGIS.DataSourcesFile">
+      <HintPath>C:\Windows\Microsoft.NET\assembly\GAC_MSIL\ESRI.ArcGIS.DataSourcesFile\v4.0_10.8.0.0__8fc3cc631e44ad86\ESRI.ArcGIS.DataSourcesFile.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="ESRI.ArcGIS.DataSourcesGDB">
+      <HintPath>C:\Windows\Microsoft.NET\assembly\GAC_MSIL\ESRI.ArcGIS.DataSourcesGDB\v4.0_10.8.0.0__8fc3cc631e44ad86\ESRI.ArcGIS.DataSourcesGDB.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="ESRI.ArcGIS.DataSourcesRaster">
+      <HintPath>C:\Windows\Microsoft.NET\assembly\GAC_MSIL\ESRI.ArcGIS.DataSourcesRaster\v4.0_10.8.0.0__8fc3cc631e44ad86\ESRI.ArcGIS.DataSourcesRaster.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+
+</Project>

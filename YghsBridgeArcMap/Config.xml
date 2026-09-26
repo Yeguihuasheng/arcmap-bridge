@@ -1,0 +1,105 @@
+﻿<ESRI.Configuration xmlns="http://schemas.esri.com/Desktop/AddIns"
+                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+  <Name>yghsBridge</Name>
+  <AddInID>{51f4ce63-6bcf-49b2-ae3a-ba2c79ea3e1a}</AddInID>
+  <Description>在 ArcMap 内启动/停止本机桥接服务（socket 127.0.0.1:27179，可用 ARCMAP_BRIDGE_PORT 环境变量改端口，仅监听本机）。允许外部 AI 助手/脚本驱动 ArcMap 的活会话：执行 arcpy、管理图层、导出地图等。</Description>
+  <Version>1.0.0</Version>
+  <Author>yghs</Author>
+  <Company>yghs</Company>
+  <Date>2026-09-26</Date>
+  <Targets>
+    <Target name="Desktop" version="10.5" />
+  </Targets>
+
+  <AddIn language="CLR4.5" library="YghsBridge.AddIn.dll" namespace="YghsBridge.AddIn">
+    <ArcMap>
+
+      <Extensions>
+        <Extension id="yghsbridge_Extension"
+                   class="McpExtension"
+                   productName="yghsBridge"
+                   showInExtensionDialog="false"
+                   autoLoad="true" />
+      </Extensions>
+
+      <Commands>
+        <Button id="yghsbridge_ToggleMcp"
+                class="ToggleMcpButton"
+                message="启动/停止桥接服务（socket 127.0.0.1:27179）。"
+                caption="MCP 服务"
+                tip="启动/停止 yghsBridge 桥接服务（按下态=运行中）"
+                image="Images/start.png"
+                category="yghsBridge"
+                onDemand="false" />
+        <Button id="yghsbridge_ShowLog"
+                class="ShowLogButton"
+                message="打开/关闭消息面板（实时日志窗口）。"
+                caption="消息面板"
+                tip="打开/关闭「消息面板」：实时查看桥接日志与事件"
+                image="Images/status.png"
+                category="yghsBridge"
+                onDemand="false" />
+        <Button id="yghsbridge_Feedback"
+                class="FeedbackButton"
+                message="打开问题反馈页面（GitHub 仓库）。"
+                caption="问题反馈"
+                tip="打开 GitHub 仓库：提问题、看源码、下载最新版本"
+                image="Images/report.png"
+                category="yghsBridge"
+                onDemand="false" />
+        <Button id="yghsbridge_Bilibili"
+                class="BilibiliButton"
+                message="打开演示/教学视频（B 站）。"
+                caption="B站视频"
+                tip="打开 B 站演示视频：ArcGIS Pro 直连 WorkBuddy（豆包）进行「合法抢劫」"
+                image="Images/about.png"
+                category="yghsBridge"
+                onDemand="false" />
+        <ComboBox id="yghsbridge_AutoStart"
+                  class="AutoStartComboBox"
+                  message="选择打开 ArcMap 时是否自动启动桥接服务。"
+                  caption="自动启动"
+                  tip="打开 ArcMap 时自动启动桥接服务（按用户保存偏好）"
+                  image="Images/autostart.png"
+                  category="yghsBridge"
+                  sizeString="自动启动: 否___"
+                  itemSizeString="自动启动: 否___"
+                  hintText="自动启动"
+                  editable="false"
+                  rows="2"
+                  onDemand="false" />
+        <Button id="yghsbridge_Status"
+                class="StatusMcpButton"
+                message="查看桥接服务状态。"
+                caption="桥接状态"
+                tip="查看桥接状态（运行中 / 已停止）与主机:端口"
+                image="Images/status.png"
+                category="yghsBridge"
+                onDemand="false" />
+      </Commands>
+
+      <Toolbars>
+        <Toolbar id="yghsbridge_Toolbar" caption="yghsBridge" showInitially="false">
+          <Items>
+            <Button refID="yghsbridge_ToggleMcp" separator="false" />
+            <Button refID="yghsbridge_ShowLog" separator="false" />
+            <Button refID="yghsbridge_Feedback" separator="false" />
+            <Button refID="yghsbridge_Bilibili" separator="false" />
+            <Button refID="yghsbridge_Status" separator="true" />
+            <ComboBox refID="yghsbridge_AutoStart" separator="false" />
+          </Items>
+        </Toolbar>
+      </Toolbars>
+
+      <DockableWindows>
+        <DockableWindow id="yghsbridge_MessagesPanel"
+                        class="BridgeLogDockableWindow"
+                        caption="yghsBridge 消息面板"
+                        image="Images/status.png"
+                        onDemand="false" />
+      </DockableWindows>
+
+    </ArcMap>
+  </AddIn>
+</ESRI.Configuration>
