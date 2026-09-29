@@ -1,0 +1,19 @@
+examples:
+  - id: run-geom-boundary-lines
+    title:
+      zh: 执行「提取图斑边界线」
+      en: Run "提取图斑边界线"
+    description:
+      zh: 在指定目标上按确认参数执行该功能
+      en: Execute this feature on the target with confirmed parameters
+    prompt:
+      zh: |-
+        请执行技能「提取图斑边界线」：
+        目标：{图层 / 数据集 / 输出位置}
+        关键参数：{按本技能“使用前必须先问询”清单逐项向我确认}
+        完成后把结果与复核情况汇报给我。
+      en: |-
+        Run skill "提取图斑边界线":
+        target: {layer / dataset / output}
+        key params: {confirm each item from the skill's question checklist first}
+        report the result and the self-check afterwards.
