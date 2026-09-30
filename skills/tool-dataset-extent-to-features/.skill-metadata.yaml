@@ -1,0 +1,19 @@
+examples:
+  - id: run-tool-dataset-extent-to-features
+    title:
+      zh: 执行「工作空间数据集范围转面」
+      en: Run "工作空间数据集范围转面"
+    description:
+      zh: 在指定目标上按确认参数执行该功能
+      en: Execute this feature on the target with confirmed parameters
+    prompt:
+      zh: |-
+        请执行技能「工作空间数据集范围转面」：
+        目标：{图层 / 数据集 / 输出位置}
+        关键参数：{按本技能“使用前必须先问询”清单逐项向我确认}
+        完成后把结果与复核情况汇报给我。
+      en: |-
+        Run skill "工作空间数据集范围转面":
+        target: {layer / dataset / output}
+        key params: {confirm each item from the skill's question checklist first}
+        report the result and the self-check afterwards.

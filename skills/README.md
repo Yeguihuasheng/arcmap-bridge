@@ -13,11 +13,12 @@ AI 通过 yghsBridge ArcMap 桥的 `execute_code` 通道在 ArcMap 内执行。�
 你可以把自己常用的工具箱、GP 工具序列、arcpy 脚本  
 打包成一个技能放进来，AI 就能像用内置能力一样调用它。
 
-> 本目录共 **102 个技能** = 早期从 Pro 版 `arcgis-pro-bridge/skills` 移植的 **21 个规划/国土业务技能**  
+> 本目录共 **117 个技能** = 早期从 Pro 版 `arcgis-pro-bridge/skills` 移植的 **21 个规划/国土业务技能**  
 > + 第二批整理并入的 **41 个通用工具技能**（字段与属性、GDB/工作空间检查、几何、影像与批量工具）  
 > + 第三批整理的 **17 个技能**（线性参考、几何构造、地形洼地、线分段、数据整理）  
 > + 第四批整理的 **8 个技能**（水文追踪、日照分析、分组近邻、加权叠加适宜性、数据盘点与合并、坡度受限选线）  
-> + 第五批整理的 **15 个技能**（EJPyConv 几何 10、FluvialGeomorph 水文 2、地形剖面 1、栅格批量定义 2）。  
+> + 第五批整理的 **15 个技能**（EJPyConv 几何 10、FluvialGeomorph 水文 2、地形剖面 1、栅格批量定义 2）  
+> + 第六批整理的 **15 个技能**（工具 8：多环缓冲/GPX/BLOB/范围/融合/经纬网/元数据、几何 2：线切分/线交点、FluvialGeomorph 水文 5：中心线/坡度/横断面/去趋势/水面）。  
 > 与 Pro 版的差异见文末「与 Pro 版的差异」。
 
 ## 如何调用技能
@@ -393,6 +394,52 @@ arcpy-toolbox（Apache-2.0）2 个；scipy 依赖的泰森多边形改用原生 
 | --- | --- | --- | --- |
 | `raster-define-projection` | 文件夹栅格批量定义坐标系 | 「把 x:\xx 文件夹的影像统一定义成 4490」 | 只改元数据不重采样；逐个报告原坐标系被覆盖情况 |
 | `raster-define-nodata` | 文件夹栅格批量定义 NoData | 「把 x:\xx 文件夹影像的 255 登记为 NoData」 | 只改元数据不改像元值，登记后自动重建统计 |
+
+## 第六批技能（15 个：工具 8 + 几何 2 + 水文 5）
+
+这批把 Pro 版技能库里已采集、ArcMap 版尚未移植的开源工具移植过来，**与前面 102 个技能
+在 run.py 参数/输出层逐一比对过，无重复**（与 `plan-setback-buffer` 单距离退让、
+`geom-inside-buffer` 单宽内环带、`geom-split-line-at-point` 点打断线、
+`data-metadata-dump` 结构盘点均有明确分工，见各技能 SKILL.md）。
+来源：arcplus（MIT）、Esri sample-gp-tools（Apache-2.0）、ArcGIS-Create-Graticule-Tool（MIT）、
+arcgis-pro-geometry（Apache-2.0）、EJPyConv（Apache-2.0）、FluvialGeomorph-toolbox（CC0）；
+arcpy-automation-toolkit / DissolveFields / ArcGIS-Metadata-Scripts 三个原项目未随仓库附许可证，
+按业务口径独立重写（已在 `ATTRIBUTION.md` 注明）。
+全部 15 个已在 ArcMap 10.8 + py2.7 真机跑通（造数据实测 17/17 通过，数值校验 38/38：
+多环负距离真内缩、GPX 自动投影 4326、BLOB 三向字节回环、切割面积精确对账、
+去趋势谷底近零、水面宽度与理论值吻合）。
+
+> 提示词里的 `xx` 代表图层名，`x:\xx.gdb` 代表数据路径，实际使用时替换成真值。
+
+### 一、数据与输出工具（8）
+
+| 技能目录 | 中文工具名称 | 提示词使用示例 | 工具说明 |
+| --- | --- | --- | --- |
+| `tool-multi-ring-buffers` | 多环缓冲（含负值内缩） | 「给 xx地块 做 100;200;500 三环缓冲，负值内缩也支持」 | 逐距离缓冲叠成一个面类，DIST 字段记环距；负值=面向内收缩 |
+| `tool-features-to-gpx` | 要素导出 GPX | 「把 xx巡线点 导成 GPX 拷给手持 GPS」 | 点→wpt、线→trk（GPX 1.1），自动投影 WGS84，带名称/描述/高程 |
+| `tool-blob-to-file` | BLOB 字段批量导出文件 | 「把 xx照片表 的 BLOB 字段按编号导出成 jpg」 | 逐记录落盘，文件名取自字段值，同名自动加后缀 |
+| `tool-file-to-blob` | 文件批量写入 BLOB 字段 | 「把 x:\xx 目录的照片按编号回挂到 xx记录表」 | 与上面互为逆操作；文件名匹配字段值，找不到的逐条列出 |
+| `tool-dataset-extent-to-features` | 工作空间数据集范围转面 | 「把 x:\xx.gdb 里每个数据集的范围画成面」 | 含要素类/栅格/要素数据集，带名称/类型/路径/要素数 |
+| `tool-dissolve-fields` | 按字段融合并拼接文本清单 | 「按 乡镇 融合 xx村界，把村名拼成清单」 | 融合几何 + 文本清单字段（按源数据出现顺序去重拼接） |
+| `map-create-graticule` | 生成经纬网（标准分幅格网） | 「按 xx范围 生成 0.5 度的经纬网」 | 经线+纬线带 DMS 标注与十进制度字段，输出固定 WGS84 |
+| `meta-export-xml` | 批量导出元数据 XML（精确副本） | 「把 xx要素类 的元数据导成 XML 归档」 | 走 Desktop 自带 exact copy of.xslt，不改写同步信息 |
+
+### 二、几何处理（2）
+
+| 技能目录 | 中文工具名称 | 提示词使用示例 | 工具说明 |
+| --- | --- | --- | --- |
+| `geom-cut-by-line` | 用切割线切分要素 | 「用 xx规划界线 把 xx图斑 切开」 | 线自动延长保证横贯，属性复制到每块；与 `geom-split-line-at-point`（点打断线）分工 |
+| `geom-line-junction-to-point` | 线交点转点（路网节点） | 「提取 xx路网 全部交叉口」 | 自身内部也求交，坐标去重，输出带 X/Y/CNT |
+
+### 三、水文分析（5，需 Spatial Analyst）
+
+| 技能目录 | 中文工具名称 | 提示词使用示例 | 工具说明 |
+| --- | --- | --- | --- |
+| `hydro-centerline` | 由河道面提取中心线 | 「从 xx河道面 提中心线，像元 5 米」 | 栅格化→Thin 骨架→栅格转线→PAEK 平滑；像元建议 ≤ 河宽/100 |
+| `hydro-channel-slope` | 河道范围内坡度栅格 | 「算 xx河道面 范围内的坡度分布」 | Slope+按面裁剪；平均比降可配分区统计 |
+| `hydro-xs-points` | 横断面线生成测点 | 「沿 xx横断面 每 50 米一个测点采高程」 | 按间距等分测点，带 SEQ/里程/坐标/高程（可选 DEM 采样） |
+| `hydro-detrend-dem` | DEM 河谷趋势面剥离 | 「对 xxDEM 按 xx河流线 做去趋势」 | 河流线采样→IDW 趋势面→平滑→相减，谷底去趋势值≈0 |
+| `hydro-water-surface-extent` | 按去趋势高度圈水面范围 | 「去趋势值 ≤1 米的区域圈成水面」 | 与上面配套：阈值掩膜→栅格转面→可选平滑 |
 
 ## 与 Pro 版的差异
 
