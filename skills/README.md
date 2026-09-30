@@ -13,12 +13,13 @@ AI 通过 yghsBridge ArcMap 桥的 `execute_code` 通道在 ArcMap 内执行。�
 你可以把自己常用的工具箱、GP 工具序列、arcpy 脚本  
 打包成一个技能放进来，AI 就能像用内置能力一样调用它。
 
-> 本目录共 **117 个技能** = 早期从 Pro 版 `arcgis-pro-bridge/skills` 移植的 **21 个规划/国土业务技能**  
+> 本目录共 **126 个技能** = 早期从 Pro 版 `arcgis-pro-bridge/skills` 移植的 **21 个规划/国土业务技能**  
 > + 第二批整理并入的 **41 个通用工具技能**（字段与属性、GDB/工作空间检查、几何、影像与批量工具）  
 > + 第三批整理的 **17 个技能**（线性参考、几何构造、地形洼地、线分段、数据整理）  
 > + 第四批整理的 **8 个技能**（水文追踪、日照分析、分组近邻、加权叠加适宜性、数据盘点与合并、坡度受限选线）  
 > + 第五批整理的 **15 个技能**（EJPyConv 几何 10、FluvialGeomorph 水文 2、地形剖面 1、栅格批量定义 2）  
-> + 第六批整理的 **15 个技能**（工具 8：多环缓冲/GPX/BLOB/范围/融合/经纬网/元数据、几何 2：线切分/线交点、FluvialGeomorph 水文 5：中心线/坡度/横断面/去趋势/水面）。  
+> + 第六批整理的 **15 个技能**（工具 8：多环缓冲/GPX/BLOB/范围/融合/经纬网/元数据、几何 2：线切分/线交点、FluvialGeomorph 水文 5：中心线/坡度/横断面/去趋势/水面）  
+> + 第七批整理的 **9 个技能**（FluvialGeomorph 河道全流程 6：外业点→DEM→烧线→河网→河流线→纵剖面、横断面分类 1、地形 1、Landsat 反射率 1）。  
 > 与 Pro 版的差异见文末「与 Pro 版的差异」。
 
 ## 如何调用技能
@@ -440,6 +441,56 @@ arcpy-automation-toolkit / DissolveFields / ArcGIS-Metadata-Scripts 三个原项
 | `hydro-xs-points` | 横断面线生成测点 | 「沿 xx横断面 每 50 米一个测点采高程」 | 按间距等分测点，带 SEQ/里程/坐标/高程（可选 DEM 采样） |
 | `hydro-detrend-dem` | DEM 河谷趋势面剥离 | 「对 xxDEM 按 xx河流线 做去趋势」 | 河流线采样→IDW 趋势面→平滑→相减，谷底去趋势值≈0 |
 | `hydro-water-surface-extent` | 按去趋势高度圈水面范围 | 「去趋势值 ≤1 米的区域圈成水面」 | 与上面配套：阈值掩膜→栅格转面→可选平滑 |
+
+## 第七批技能（9 个：河道地形全流程 7 + 洼地识别 1 + 影像定标 1）
+
+这批把 FluvialGeomorph-toolbox 的**河道分析全流程**补齐（外业测点 → DEM → 水文修正 →
+河网 → 河流线 → 纵剖面测点 → 横断面分类），与第六批的水文 5 件（中心线/坡度/横断面/
+去趋势/水面）首尾衔接成完整链路；另收洼地识别与 Landsat 辐射定标两个独立工具。
+**与前面 117 个技能在 run.py 参数/输出层逐一比对过，无重复**（与
+`hydro-watershed-by-point` 点出水口、`hydro-xs-points` 横断面布点、
+`geom-extract-points` 纯几何取点、`hydro-flowdir-d8` 流向累积均有明确分工，
+见各技能 SKILL.md）。
+来源：FluvialGeomorph-toolbox（CC0 公有领域）6 个、arcgis-geodepressions（MIT）1 个、
+reflectance-tools（Unlicense 公有领域，`d.csv` 日地距离表随技能打包）1 个、
+Wetland-Hydrology-Analyst-Toolbox（未随仓库附许可证，按业务口径独立重写）1 个。
+全部 9 个已在 ArcMap 10.8 + py2.7 真机跑通（造数据实测 9/9 通过，数值校验 24/24：
+Spline 质检差值、烧线=沿线最低、流域面积换算、纵剖面里程、洼地深度、
+反射率独立复算全部吻合）。
+
+> 提示词里的 `xx` 代表图层名，`x:\xx.gdb` 代表数据路径，实际使用时替换成真值。
+
+### 一、河道地形数据链（FluvialGeomorph 全流程，按使用顺序排列）
+
+| 步骤 | 技能目录 | 中文工具名称 | 提示词使用示例 | 工具说明 |
+| --- | --- | --- | --- | --- |
+| ① 建 DEM | `hydro-dem-from-field` | 外业测点插值生成 DEM | 「把 xx深泓点 和 xx横断面点 插成 DEM，Spline 法像元 1 米」 | Spline/TIN 两法，回算实测−DEM 质检差值；**需 3D Analyst**（Spline 另需 Spatial） |
+| ② 修 DEM | `hydro-hydrodem` | 把切线烧进 DEM（水文修正） | 「沿 xx切线 把 xxDEM 烧开，加宽 2 像元」 | 沿线取最低高程烧回 DEM，打通堤/坝/路埂挡水处；**需 Spatial Analyst** |
+| ③ 河网转点 | `hydro-stream-network-points` | 河网转点并计算流域面积与高程 | 「把 xx河网 转成测点，用 xx汇流累积 算流域面积」 | 折点带里程/汇流面积（平方英里）/DEM 高程，用于按面积分段；**需 Spatial Analyst** |
+| ④ 整编 | `hydro-flowline` | 河网按河段整编成河流线 | 「把 xx河网 按 ReachName 整编成河流线，平滑 3 米」 | Dissolve+PAEK 平滑，一条河段一根线 |
+| ⑤ 纵剖面 | `hydro-flowline-points` | 河流线生成纵剖面测点 | 「沿 xx河流线 每 50 米布纵剖面点，采 xxDEM 高程」 | LRS 路径+站距加密，带里程/Z，可选校准点校正里程；**需 3D Analyst** |
+| ⑥ 分类 | `hydro-xs-classify-points` | 横断面测点按河道/滩地分类 | 「给 xx横断面测点 标河道/滩地，缓冲 1 米」 | 原地加 channel/floodplain 标记字段，糙率分区用 |
+
+链路关系：①②产出可用的 DEM（②可选）→ 第六批 `hydro-flowdir-d8` 算流向/汇流 →
+③按面积分段 → ④整编河流线 → ⑤纵剖面 → 第六批 `hydro-xs-points` 布横断面测点 → ⑥分类。
+
+### 二、地形分析（1）
+
+| 技能目录 | 中文工具名称 | 提示词使用示例 | 工具说明 |
+| --- | --- | --- | --- |
+| `terrain-identify-geodepressions` | 识别负地形洼地（带深度） | 「在 xx海深栅格 里找洼地，面积上限 20 万 m²」 | 填洼差值找坑，面积窗口过滤，每坑带最大深度 POCK_DEP；输入须全负值；**需 Spatial Analyst** |
+
+### 三、流域划分（1）
+
+| 技能目录 | 中文工具名称 | 提示词使用示例 | 工具说明 |
+| --- | --- | --- | --- |
+| `terrain-delineate-flowpaths` | 按出口面划分汇水区 | 「按 xx出口面 在 xxDEM 上划汇水区」 | D8 流向+面倾泻点，一次出多个汇水区多边形；与 `hydro-watershed-by-point`（点出水口）分工；**需 Spatial Analyst** |
+
+### 四、影像辐射定标（1）
+
+| 技能目录 | 中文工具名称 | 提示词使用示例 | 工具说明 |
+| --- | --- | --- | --- |
+| `raster-reflectance` | Landsat 波段 DN 值转辐射率与反射率 | 「把 x:\xx 目录的 Landsat7 波段 1;2;3;4;5;7 转成反射率，缩放 1000」 | 读 _MTL.txt 元数据，DN→辐射率→表观反射率，5 套 ESUN 标准；**需 Spatial Analyst** |
 
 ## 与 Pro 版的差异
 
