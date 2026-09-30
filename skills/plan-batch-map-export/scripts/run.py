@@ -2,7 +2,7 @@
 """
 批量出图（布局导出图片） —— ArcMap 版
 
-把一个工程文件里的布局批量导出成图片或 PDF。Pro 走 arcpy.mp 逐个布局导出，ArcMap 走 arcpy.mapping 导出地图文档布局视图。适合村庄规划成果里「现状图 / 规划图 / 管控图」成套出图的重复劳动。
+把一个工程文件里的布局批量导出成图片或 PDF。Pro 版走 ArcGIS Pro 布局 API 逐个布局导出，ArcMap 版走 arcpy.mapping 导出地图文档布局视图。适合村庄规划成果里「现状图 / 规划图 / 管控图」成套出图的重复劳动。
 """
 from __future__ import print_function, unicode_literals
 

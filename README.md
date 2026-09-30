@@ -135,9 +135,9 @@ python arcmap_mcp_client.py exec --code-file 脚本.py
 
 ## 业务技能库（可选，用户自定义）
 
-`skills/` 内置 21 个规划 / 国土业务技能（用地用海指标汇总、三调 DLBM 转换、  
-三线占用汇总、批量地类统计、图幅号计算…），对 AI 说  
-「执行 skills 里的『用地用海指标汇总』」即可调用。
+`skills/` 内置 **133 个技能**，按功能域分 13 大类（国土空间规划与用地用海、字段与属性、  
+GDB 管理、几何构造、线性参考、栅格影像、水文、地形、制图、数据整理、批量处理、坐标系、空间分析），  
+对 AI 说「执行 skills 里的『用地用海指标汇总』」即可调用。
 
 **这是用户可自定义的部分**：把你自己的工具箱 / GP 工具序列 / arcpy 脚本  
 按模板打包成一个 SKILL.md 放进 `skills/`，AI 就能像内置能力一样调用——  
@@ -166,7 +166,7 @@ python arcmap_mcp_client.py exec --code-file 脚本.py
 | `YghsBridgeArcMap/`             | COM add-in 插件源码（C#，.NET 8）            |
 | `arcmap_mcp_client.py`          | 直连客户端（socket 协议，纯标准库）               |
 | `_build.py` / `package.py` / `_install_addin.py` | 构建、打包、安装一键脚本               |
-| `skills/`                       | 21 个规划/国土业务技能库（见 `skills/README.md`） |
+| `skills/`                       | 133 个技能库，按功能域分 13 大类（见 `skills/README.md`） |
 | `bridge_boot.py` / `boot_arcmap.py` | 文件轮询桥兜底通道 + UI 自动化点火              |
 
 ## License
