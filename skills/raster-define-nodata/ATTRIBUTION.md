@@ -1,0 +1,8 @@
+# 来源与许可
+
+- 平台：ArcMap
+- 参考的公开开源项目：arcpy-toolbox（Define_NoData_255_onRasterFolder_8bit.py，Apache-2.0，按业务口径重写）
+- 原项目许可证：Apache-2.0
+
+本技能脚本是按原工具业务口径重写的自包含实现，不依赖原项目的任何代码文件；
+仓库中不包含原项目的源码。若你发现归属有误，请提 issue 更正。
